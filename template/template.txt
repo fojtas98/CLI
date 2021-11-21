@@ -1,0 +1,39 @@
+package restaurants
+
+import (
+	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"strings"
+)
+
+func GetMenuFrom{{.Name}}()[]string{
+response, err := http.Get("{{.Website}}")
+	if err != nil {
+		log.Fatal(err)
+	}
+	dataInBytes, err := ioutil.ReadAll(response.Body)
+	pageContent := string(dataInBytes)
+	var res = []string{"### \033[1m{{.Name}}\033[0m ###"}
+	for i := 0; i < 4; i++ {
+		dishInexStart := strings.Index(pageContent, `{{.OpenTag}}`)
+		if dishInexStart == -1 {
+			fmt.Println("No title element found")
+			break
+		}
+
+		dishInexStart += len(`{{.OpenTag}}`)
+		pageContent = pageContent[dishInexStart:]
+
+		dishIndexEnd := strings.Index(pageContent, "{{.CloseTag}}")
+		if dishIndexEnd == -1 {
+			fmt.Println("No title element found")
+			break
+
+		}
+		dish := pageContent[:dishIndexEnd]
+		res = append(res, " # "+dish)
+	}
+	return res
+}
