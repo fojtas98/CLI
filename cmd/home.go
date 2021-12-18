@@ -16,9 +16,7 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-
-	restaurants "github.com/fojtas98/CLI/restaurants"
+	"github.com/fojtas98/CLI/restaurants"
 	"github.com/spf13/cobra"
 )
 
@@ -36,14 +34,7 @@ func init() {
 }
 
 func getMenu() {
-	var menu []string
-	menu = append(menu, restaurants.GetMenuFromLetsMeat()...)
-	menu = append(menu, restaurants.GetMenuFrombulvar()...)
-	menu = append(menu, restaurants.GetMenuFromvinohradskypivovar()...)
-	menu = append(menu, restaurants.GetMenuFromutelleru()...)
 
-	for _, dish := range menu {
-		fmt.Println(dish)
-	}
+	restaurants.Init()
 
 }

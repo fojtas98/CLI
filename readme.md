@@ -1,0 +1,3 @@
+- [ ] add commend to delete restaurant
+- [ ] add locations (home/office...)
+- [ ] clean the code

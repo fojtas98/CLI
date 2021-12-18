@@ -1,0 +1,8 @@
+package restaurants
+
+func Funcs() map[string]interface{} {
+	f := make(map[string]interface{})
+	//	f["Index"] = Index
+	{{.Funcs}}
+	return f
+}

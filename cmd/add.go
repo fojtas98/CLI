@@ -3,17 +3,24 @@ package cmd
 import (
 	"bufio"
 	"fmt"
+	"io/ioutil"
 	"os"
+	"strconv"
 
-	u "github.com/fojtas98/CLI/template"
+	"github.com/fojtas98/CLI/templates"
 	"github.com/spf13/cobra"
 )
 
 var newRestaurant struct {
-	Name     string
-	Website  string
-	OpenTag  string
-	CloseTag string
+	Name      string
+	Website   string
+	OpenTag   string
+	CloseTag  string
+	DishCount int
+}
+
+var addToMap struct {
+	Funcs string
 }
 
 // addCmd represents the add command
@@ -32,15 +39,26 @@ to quickly create a Cobra application.`,
 		newRestaurant.Name = getInfoFromUser("Name")
 		newRestaurant.OpenTag = getInfoFromUser("OpenTag")
 		newRestaurant.CloseTag = getInfoFromUser("CloseTag")
+		newRestaurant.DishCount, _ = strconv.Atoi(getInfoFromUser("DishCount"))
 
-		template := u.CreateFromTamplate()
+		resTemp := templates.CreateFromTamplate("res")
 		currentWorkingDirectory, _ := os.Getwd()
 		f, _ := os.Create(currentWorkingDirectory + "/restaurants/" + newRestaurant.Name + ".go")
-		err := template.Execute(f, newRestaurant)
+		err := resTemp.Execute(f, newRestaurant)
 		if err != nil {
 			panic(err)
 		}
-
+		files, _ := ioutil.ReadDir("./restaurants")
+		for _, f := range files {
+			name := f.Name()
+			name = name[:len(name)-3]
+			if name != "map" && name != "index" {
+				addToMap.Funcs += `f["` + name + `"] = ` + "GetMenuFrom" + name + "\n" + "\t"
+			}
+		}
+		mapTemp := templates.CreateFromTamplate("map")
+		file, _ := os.Create(currentWorkingDirectory + "/restaurants/" + "map.go")
+		mapTemp.Execute(file, addToMap)
 	},
 }
 

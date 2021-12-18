@@ -8,18 +8,18 @@ import (
 	"strings"
 )
 
-func GetMenuFrom{{.Name}}()[]string{
+func GetMenuFrom{{.Name}}(){
 response, err := http.Get("{{.Website}}")
 	if err != nil {
 		log.Fatal(err)
 	}
-	dataInBytes, err := ioutil.ReadAll(response.Body)
+	dataInBytes, _ := ioutil.ReadAll(response.Body)
 	pageContent := string(dataInBytes)
-	var res = []string{"### \033[1m{{.Name}}\033[0m ###"}
-	for i := 0; i < 4; i++ {
+	fmt.Println("### \033[1m{{.Name}}\033[0m ###")
+	for i := 0; i < {{.DishCount}} + 1; i++ {
 		dishInexStart := strings.Index(pageContent, `{{.OpenTag}}`)
 		if dishInexStart == -1 {
-			fmt.Println("No title element found")
+			fmt.Println(" #No memu for today")
 			break
 		}
 
@@ -28,12 +28,17 @@ response, err := http.Get("{{.Website}}")
 
 		dishIndexEnd := strings.Index(pageContent, "{{.CloseTag}}")
 		if dishIndexEnd == -1 {
-			fmt.Println("No title element found")
+			fmt.Println(" #No memu for today")
 			break
 
 		}
 		dish := pageContent[:dishIndexEnd]
-		res = append(res, " # "+dish)
+
+		if dish[:8] == "<strong>" {
+			end := len(dish) - 9
+			dish = dish[8:end]
+		}
+		fmt.Println(" #" + dish)
 	}
-	return res
+	Wg.Done()
 }

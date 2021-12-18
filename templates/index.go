@@ -1,4 +1,4 @@
-package template
+package templates
 
 import (
 	"io/ioutil"
@@ -6,9 +6,9 @@ import (
 	"text/template"
 )
 
-func CreateFromTamplate() *template.Template {
+func CreateFromTamplate(templateName string) *template.Template {
 	currentWorkingDirectory, _ := os.Getwd()
-	file, err := os.Open(currentWorkingDirectory + "/template/template.txt")
+	file, err := os.Open(currentWorkingDirectory + "/templates/" + templateName + ".txt")
 	if err != nil {
 		panic(err)
 	}
