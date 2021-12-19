@@ -1,3 +1,4 @@
-- [ ] add commend to delete restaurant
+- [ ] fix bug with dir
+- [ ] add command to delete restaurant
 - [ ] add locations (home/office...)
 - [ ] clean the code
