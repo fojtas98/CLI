@@ -1,16 +1,21 @@
 package restaurants
 
 import (
-	"io/ioutil"
+	"embed"
 	"reflect"
 	"sync"
 )
 
+//go:embed *.go
+var restarantsFs embed.FS
 var Wg sync.WaitGroup
 
 func Init() {
 	fun := Funcs()
-	files, _ := ioutil.ReadDir("./restaurants")
+	files, err := restarantsFs.ReadDir(".")
+	if err != nil {
+		panic(err)
+	}
 	for _, f := range files {
 		name := f.Name()
 		name = name[:len(name)-3]

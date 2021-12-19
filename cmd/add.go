@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
+	"path/filepath"
+	"runtime"
 	"strconv"
 
 	"github.com/fojtas98/CLI/templates"
@@ -35,6 +38,9 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 
+		_, b, _, _ := runtime.Caller(0)
+		path := path.Dir(filepath.Dir(b))
+
 		newRestaurant.Website = getInfoFromUser("Website")
 		newRestaurant.Name = getInfoFromUser("Name")
 		newRestaurant.OpenTag = getInfoFromUser("OpenTag")
@@ -42,13 +48,12 @@ to quickly create a Cobra application.`,
 		newRestaurant.DishCount, _ = strconv.Atoi(getInfoFromUser("DishCount"))
 
 		resTemp := templates.CreateFromTamplate("res")
-		currentWorkingDirectory, _ := os.Getwd()
-		f, _ := os.Create(currentWorkingDirectory + "/restaurants/" + newRestaurant.Name + ".go")
+		f, _ := os.Create(path + "/restaurants/" + newRestaurant.Name + ".go")
 		err := resTemp.Execute(f, newRestaurant)
 		if err != nil {
 			panic(err)
 		}
-		files, _ := ioutil.ReadDir("./restaurants")
+		files, _ := ioutil.ReadDir(path + "/restaurants")
 		for _, f := range files {
 			name := f.Name()
 			name = name[:len(name)-3]
@@ -57,7 +62,7 @@ to quickly create a Cobra application.`,
 			}
 		}
 		mapTemp := templates.CreateFromTamplate("map")
-		file, _ := os.Create(currentWorkingDirectory + "/restaurants/" + "map.go")
+		file, _ := os.Create(path + "/restaurants/" + "map.go")
 		mapTemp.Execute(file, addToMap)
 	},
 }

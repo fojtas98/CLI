@@ -1,14 +1,16 @@
 package templates
 
 import (
+	"embed"
 	"io/ioutil"
-	"os"
 	"text/template"
 )
 
+//go:embed *.txt
+var templateFs embed.FS
+
 func CreateFromTamplate(templateName string) *template.Template {
-	currentWorkingDirectory, _ := os.Getwd()
-	file, err := os.Open(currentWorkingDirectory + "/templates/" + templateName + ".txt")
+	file, err := templateFs.Open(templateName + ".txt")
 	if err != nil {
 		panic(err)
 	}
