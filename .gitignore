@@ -1,3 +1,1 @@
-/restaurants/*.go
-!/restaurants/index.go
-!/restaurants/map.go
+/sqlite-database.db
