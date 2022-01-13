@@ -47,7 +47,12 @@ to quickly create a Cobra application.`,
 		for _, res := range data {
 			wg.Add(1)
 			go func(res helpers.Restaurant) {
-				scrapers.FirstDayMenu(res)
+				if res.ResType == "justToday" {
+
+					scrapers.FirstDayMenu(res)
+				} else {
+					scrapers.AllWeekMenu(res)
+				}
 				wg.Done()
 			}(res)
 

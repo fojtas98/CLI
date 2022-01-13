@@ -19,7 +19,7 @@ func FirstDayMenu(res helpers.Restaurant) {
 	dataInBytes, _ := ioutil.ReadAll(response.Body)
 	pageContent := string(dataInBytes)
 	result = append(result, "### \033[1m"+res.Name+"\033[0m ###")
-	for i := 0; i < res.Meals+1; i++ {
+	for i := 0; i < res.Meals; i++ {
 		dishInexStart := strings.Index(pageContent, res.OpenTag)
 		if dishInexStart == -1 {
 			result = append(result, " No menu found for today")
@@ -35,10 +35,8 @@ func FirstDayMenu(res helpers.Restaurant) {
 			break
 		}
 		dish := pageContent[:dishIndexEnd]
-		if dish[:8] == "<strong>" {
-			end := len(dish) - 9
-			dish = dish[8:end]
-		}
+		dish = strings.TrimSpace(dish)
+		dish = helpers.DeleteTags(dish)
 		result = append(result, " "+dish)
 	}
 	for _, meal := range result {
