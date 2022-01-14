@@ -4,7 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"path"
+	"path/filepath"
 	"reflect"
+	"runtime"
 
 	"github.com/fojtas98/dailyMenus/helpers"
 	_ "github.com/mattn/go-sqlite3"
@@ -13,8 +16,11 @@ import (
 var db *sql.DB
 
 func OpenDatabase() error {
+	_, b, _, _ := runtime.Caller(0)
+	path := path.Dir(filepath.Dir(b))
+
 	var err error
-	db, err = sql.Open("sqlite3", "./sqlite-database.db")
+	db, err = sql.Open("sqlite3", path+"/sqlite-database")
 	if err != nil {
 		return err
 	}
