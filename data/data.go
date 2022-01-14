@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 	"path"
 	"path/filepath"
 	"reflect"
@@ -16,11 +17,20 @@ import (
 var db *sql.DB
 
 func OpenDatabase() error {
+
 	_, b, _, _ := runtime.Caller(0)
 	path := path.Dir(filepath.Dir(b))
-
 	var err error
-	db, err = sql.Open("sqlite3", path+"/sqlite-database")
+	if _, err := os.Stat(path + "/sqlite-database.db"); err != nil {
+		fmt.Println("path")
+		os.Chmod(path, 0777)
+		f, err := os.Create(path + "/sqlite-database.db")
+		f.Close()
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+	}
+	db, err = sql.Open("sqlite3", path+"/sqlite-database.db")
 	if err != nil {
 		return err
 	}

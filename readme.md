@@ -11,5 +11,6 @@
 - [X] add command to delete restaurant
 - [X] add locations (home/office...)
 - [ ] optimize code -> be more effective
+- [ ] error handling
 
 - [x] fix bug with dir
