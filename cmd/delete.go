@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/fojtas98/CLI/data"
+	"github.com/fojtas98/dailyMenus/data"
 	"github.com/spf13/cobra"
 )
 

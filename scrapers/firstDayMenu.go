@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/fojtas98/CLI/helpers"
+	"github.com/fojtas98/dailyMenus/helpers"
 )
 
 func FirstDayMenu(res helpers.Restaurant) {

@@ -6,7 +6,7 @@ import (
 	"log"
 	"reflect"
 
-	"github.com/fojtas98/CLI/helpers"
+	"github.com/fojtas98/dailyMenus/helpers"
 	_ "github.com/mattn/go-sqlite3"
 )
 

@@ -20,9 +20,9 @@ import (
 	"os"
 	"sync"
 
-	"github.com/fojtas98/CLI/data"
-	"github.com/fojtas98/CLI/helpers"
-	"github.com/fojtas98/CLI/scrapers"
+	"github.com/fojtas98/dailyMenus/data"
+	"github.com/fojtas98/dailyMenus/helpers"
+	"github.com/fojtas98/dailyMenus/scrapers"
 	"github.com/spf13/cobra"
 )
 

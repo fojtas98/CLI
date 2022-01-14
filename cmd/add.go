@@ -6,8 +6,8 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/fojtas98/CLI/data"
-	"github.com/fojtas98/CLI/helpers"
+	"github.com/fojtas98/dailyMenus/data"
+	"github.com/fojtas98/dailyMenus/helpers"
 	"github.com/spf13/cobra"
 )
 

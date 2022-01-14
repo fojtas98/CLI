@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/fojtas98/CLI/helpers"
+	"github.com/fojtas98/dailyMenus/helpers"
 )
 
 func AllWeekMenu(res helpers.Restaurant) {
