@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"runtime"
+	"strings"
 
 	"github.com/fojtas98/dailyMenus/helpers"
 	_ "github.com/mattn/go-sqlite3"
@@ -22,7 +23,6 @@ func OpenDatabase() error {
 	path := path.Dir(filepath.Dir(b))
 	var err error
 	if _, err := os.Stat(path + "/sqlite-database.db"); err != nil {
-		fmt.Println("path")
 		os.Chmod(path, 0777)
 		f, err := os.Create(path + "/sqlite-database.db")
 		f.Close()
@@ -31,9 +31,11 @@ func OpenDatabase() error {
 		}
 	}
 	db, err = sql.Open("sqlite3", path+"/sqlite-database.db")
+
 	if err != nil {
 		return err
 	}
+	CreateTable()
 	return db.Ping()
 }
 
@@ -43,7 +45,7 @@ func CreateTable() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	createRestaurantsTable := `CREATE TABLE restaurants (
+	createRestaurantsTable := `CREATE TABLE IF NOT EXISTS restaurants(
 		"restaurantId" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 		"name" TEXT,
 		"url" TEXT,
@@ -77,7 +79,32 @@ func AddToRestaurants(restaurant helpers.Restaurant) {
 
 func GetRestaurantsByArea(area string) (helpers.Restaurants, error) {
 	var restaurants helpers.Restaurants
-	rows, err := db.Query("SELECT * from restaurants where area = ?", area)
+	rows, err := db.Query("SELECT * from restaurants WHERE LOWER( restaurants.area )= ?", strings.ToLower(area))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var id int
+		var restaurant helpers.Restaurant
+		if err := rows.Scan(&id, &restaurant.Name, &restaurant.Url, &restaurant.ResType,
+			&restaurant.Meals, &restaurant.OpenTag, &restaurant.CloseTag, &restaurant.Area); err != nil {
+			return restaurants, err
+		}
+		restaurants = append(restaurants, restaurant)
+	}
+	if err = rows.Err(); err != nil {
+		return restaurants, err
+
+	}
+	if len(restaurants) == 0 {
+		return restaurants, fmt.Errorf("this area dont have any restaurants, try different area")
+	}
+	return restaurants, nil
+}
+func GetRestaurantsByRestaurant(name string) (helpers.Restaurants, error) {
+	var restaurants helpers.Restaurants
+	rows, err := db.Query("	SELECT * FROM restaurants WHERE LOWER( restaurants.name ) = ?", strings.ToLower(name))
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -26,25 +26,33 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var r bool
+
 // fetchCmd represents the fetch command
 var fetchCmd = &cobra.Command{
-	Use:   "fetch",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Use:   "fetch <name>",
+	Short: "Gets daily menu from restaurants",
+	Example: `  dailyMenus fetch myArea
+	dailyMenus fetch myFavoriteRestaurant -r`,
+	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		var wg sync.WaitGroup
+		var restaurants helpers.Restaurants
+		var err error
 
-		data, err := data.GetRestaurantsByArea(args[0])
+		if !r {
+			restaurants, err = data.GetRestaurantsByArea(args[0])
+
+		} else {
+			restaurants, err = data.GetRestaurantsByRestaurant(args[0])
+
+		}
+
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(0)
 		}
-		for _, res := range data {
+		for _, res := range restaurants {
 			wg.Add(1)
 			go func(res helpers.Restaurant) {
 				if res.ResType == "justToday" {
@@ -64,14 +72,6 @@ to quickly create a Cobra application.`,
 
 func init() {
 	rootCmd.AddCommand(fetchCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// fetchCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// fetchCmd.Flags().String("")
+	fetchCmd.Flags().BoolVarP(&r, "restaruant", "r", false, "fetch restaurant for given name")
+	// fetchCmd.Flags().MarkHidden("restaruant")
 }
