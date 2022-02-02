@@ -18,6 +18,10 @@ func FirstDayMenu(res helpers.Restaurant) {
 	}
 	dataInBytes, _ := ioutil.ReadAll(response.Body)
 	pageContent := string(dataInBytes)
+	if res.ParentTag != "" {
+		parentTagStartsAt := strings.Index(pageContent, res.ParentTag)
+		pageContent = pageContent[parentTagStartsAt:]
+	}
 	result = append(result, "### \033[1m"+res.Name+"\033[0m ###")
 	for i := 0; i < res.Meals; i++ {
 		dishInexStart := strings.Index(pageContent, res.OpenTag)

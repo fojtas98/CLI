@@ -22,6 +22,10 @@ func AllWeekMenu(res helpers.Restaurant) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	if res.ParentTag != "" {
+		parentTagStartsAt := strings.Index(pageContent, res.ParentTag)
+		pageContent = pageContent[parentTagStartsAt:]
+	}
 	for skip > 0 {
 		for i := 0; i < res.Meals; i++ {
 			dishInexStart := strings.Index(pageContent, res.OpenTag)
@@ -39,11 +43,17 @@ func AllWeekMenu(res helpers.Restaurant) {
 				break
 			}
 			dish = pageContent[:dishIndexEnd]
-			if skip == 1 {
-				dish = strings.TrimSpace(dish)
-				dish = helpers.DeleteTags(dish)
-				result = append(result, " "+dish)
+			dish = helpers.DeleteWeekDay(dish)
+			if len(dish) == 0 {
+				i--
+			} else {
+				if skip == 1 {
+					dish = strings.TrimSpace(dish)
+					dish = helpers.DeleteTags(dish)
+					result = append(result, " "+dish)
+				}
 			}
+
 		}
 		skip -= 1
 	}

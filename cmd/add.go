@@ -13,20 +13,16 @@ import (
 
 var newRestaurant helpers.Restaurant
 
-var addToMap struct {
-	Funcs string
-}
-
 // addCmd represents the add command
 var addCmd = &cobra.Command{
 	Use:   "add",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-	and usage of using your command. For example:
-	
-	Cobra is a CLI library for Go that empowers applications.
-	This application is a tool to generate the needed files
-	to quickly create a Cobra application.`,
+	Short: "Commad to add your restaurant",
+	Long: "\033[1mTo add your restaurants menu you will need\033[0m \n" + ` 1. Url where the menu lives
+ 2. Name of the restaurant
+ 3. Html open tag(<ti>) before the meal
+ 4. Html clse tag </ti> after the meal
+ 5. Area where you can find the restaurant -> home
+ 6. resType, id the url contains menus for all weak the you select allWekk, if you can see just menu fot today you select justToday`,
 	Run: func(cmd *cobra.Command, args []string) {
 		newRestaurant.Url = getInfoFromUser("Website")
 		newRestaurant.Name = getInfoFromUser("Name")
@@ -34,6 +30,7 @@ var addCmd = &cobra.Command{
 		newRestaurant.CloseTag = getInfoFromUser("CloseTag")
 		newRestaurant.Meals, _ = strconv.Atoi(getInfoFromUser("DishCount"))
 		newRestaurant.Area = getInfoFromUser("Area")
+		newRestaurant.ParentTag = getInfoFromUser("ParentTag(optional)")
 		newRestaurant.ResType = getInfoFromUser("Type -> allWeek/justToday")
 
 		data.AddToRestaurants(newRestaurant)

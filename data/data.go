@@ -53,6 +53,7 @@ func CreateTable() {
 		"numberOfMealsInMenu" INTEGER,
 		"openTag" TEXT,
 		"closeTag" TEXT,
+		"parentTag" TEXT,
 		"area" TEXT 
 	  );`
 
@@ -64,7 +65,7 @@ func CreateTable() {
 }
 
 func AddToRestaurants(restaurant helpers.Restaurant) {
-	insertNoteSQL := "INSERT INTO restaurants(name,url,type,numberOfMealsInMenu, openTag, closeTag, area) VALUES (?, ?, ?, ? ,?, ?, ?)"
+	insertNoteSQL := "INSERT INTO restaurants(name, url ,type ,numberOfMealsInMenu, openTag, closeTag ,parentTag , area) VALUES (?, ?, ?, ? ,?, ?, ?, ?)"
 	rv := reflect.ValueOf(restaurant)
 	var args []interface{}
 	for i := 0; i < rv.NumField(); i++ {
@@ -88,7 +89,7 @@ func GetRestaurantsByArea(area string) (helpers.Restaurants, error) {
 		var id int
 		var restaurant helpers.Restaurant
 		if err := rows.Scan(&id, &restaurant.Name, &restaurant.Url, &restaurant.ResType,
-			&restaurant.Meals, &restaurant.OpenTag, &restaurant.CloseTag, &restaurant.Area); err != nil {
+			&restaurant.Meals, &restaurant.OpenTag, &restaurant.CloseTag, &restaurant.ParentTag, &restaurant.Area); err != nil {
 			return restaurants, err
 		}
 		restaurants = append(restaurants, restaurant)
@@ -129,9 +130,9 @@ func GetRestaurantsByRestaurant(name string) (helpers.Restaurants, error) {
 }
 
 func DeleteRestaurantByName(name string) error {
-	insertNoteSQL := "DELETE FROM restaurants where name = ?"
+	insertNoteSQL := "DELETE FROM restaurants WHERE LOWER( restaurants.name ) = ?"
 
-	result, err := db.Exec(insertNoteSQL, name)
+	result, err := db.Exec(insertNoteSQL, strings.ToLower(name))
 	rowsAffected, _ := result.RowsAffected()
 	if rowsAffected == 0 {
 		return fmt.Errorf("restaurant with this name wasnt found")
