@@ -1,6 +1,6 @@
-package helpers
+package restaurant
 
-type Restaurant struct {
+type R struct {
 	Name      string
 	Url       string
 	ResType   string
@@ -10,7 +10,3 @@ type Restaurant struct {
 	ParentTag string
 	Area      string
 }
-
-type TodaysMenu []string
-
-type Restaurants []Restaurant

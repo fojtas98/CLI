@@ -11,7 +11,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/fojtas98/dailyMenus/helpers"
+	"github.com/fojtas98/dailyMenus/restaurant"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -64,7 +64,7 @@ func CreateTable() {
 	resStatement.Exec()
 }
 
-func AddToRestaurants(restaurant helpers.Restaurant) {
+func AddToRestaurants(restaurant restaurant.R) {
 	insertNoteSQL := "INSERT INTO restaurants(name, url ,type ,numberOfMealsInMenu, openTag, closeTag ,parentTag , area) VALUES (?, ?, ?, ? ,?, ?, ?, ?)"
 	rv := reflect.ValueOf(restaurant)
 	var args []interface{}
@@ -78,8 +78,9 @@ func AddToRestaurants(restaurant helpers.Restaurant) {
 	log.Println("Restaurant with name " + restaurant.Name + " has been successfully added")
 }
 
-func GetRestaurantsByArea(area string) (helpers.Restaurants, error) {
-	var restaurants helpers.Restaurants
+func GetRestaurantsByArea(area string) ([]restaurant.R, error) {
+	rSlice := []restaurant.R{}
+
 	rows, err := db.Query("SELECT * from restaurants WHERE LOWER( restaurants.area )= ?", strings.ToLower(area))
 	if err != nil {
 		log.Fatal(err)
@@ -87,24 +88,24 @@ func GetRestaurantsByArea(area string) (helpers.Restaurants, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var id int
-		var restaurant helpers.Restaurant
-		if err := rows.Scan(&id, &restaurant.Name, &restaurant.Url, &restaurant.ResType,
-			&restaurant.Meals, &restaurant.OpenTag, &restaurant.CloseTag, &restaurant.ParentTag, &restaurant.Area); err != nil {
-			return restaurants, err
+		var r restaurant.R
+		if err := rows.Scan(&id, &r.Name, &r.Url, &r.ResType,
+			&r.Meals, &r.OpenTag, &r.CloseTag, &r.ParentTag, &r.Area); err != nil {
+			return rSlice, err
 		}
-		restaurants = append(restaurants, restaurant)
+		rSlice = append(rSlice, r)
 	}
 	if err = rows.Err(); err != nil {
-		return restaurants, err
+		return rSlice, err
 
 	}
-	if len(restaurants) == 0 {
-		return restaurants, fmt.Errorf("this area dont have any restaurants, try different area")
+	if len(rSlice) == 0 {
+		return rSlice, fmt.Errorf("this area dont have any restaurants, try different area")
 	}
-	return restaurants, nil
+	return rSlice, nil
 }
-func GetRestaurantsByRestaurant(name string) (helpers.Restaurants, error) {
-	var restaurants helpers.Restaurants
+func GetRestaurantsByRestaurant(name string) ([]restaurant.R, error) {
+	sliceR := []restaurant.R{}
 	rows, err := db.Query("	SELECT * FROM restaurants WHERE LOWER( restaurants.name ) = ?", strings.ToLower(name))
 	if err != nil {
 		log.Fatal(err)
@@ -112,25 +113,40 @@ func GetRestaurantsByRestaurant(name string) (helpers.Restaurants, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var id int
-		var restaurant helpers.Restaurant
-		if err := rows.Scan(&id, &restaurant.Name, &restaurant.Url, &restaurant.ResType,
-			&restaurant.Meals, &restaurant.OpenTag, &restaurant.CloseTag, &restaurant.Area); err != nil {
-			return restaurants, err
+		var r restaurant.R
+		if err := rows.Scan(&id, &r.Name, &r.Url, &r.ResType,
+			&r.Meals, &r.OpenTag, &r.CloseTag, &r.Area); err != nil {
+			return sliceR, err
 		}
-		restaurants = append(restaurants, restaurant)
+		sliceR = append(sliceR, r)
 	}
 	if err = rows.Err(); err != nil {
-		return restaurants, err
+		return sliceR, err
 
 	}
-	if len(restaurants) == 0 {
-		return restaurants, fmt.Errorf("this area dont have any restaurants, try different area")
+	if len(sliceR) == 0 {
+		return sliceR, fmt.Errorf("this area dont have any restaurants, try different area")
 	}
-	return restaurants, nil
+	return sliceR, nil
 }
 
 func DeleteRestaurantByName(name string) error {
 	insertNoteSQL := "DELETE FROM restaurants WHERE LOWER( restaurants.name ) = ?"
+
+	result, err := db.Exec(insertNoteSQL, strings.ToLower(name))
+	rowsAffected, _ := result.RowsAffected()
+	if rowsAffected == 0 {
+		return fmt.Errorf("restaurant with this name wasnt found")
+	}
+
+	if err != nil {
+		return fmt.Errorf(err.Error())
+	}
+	return nil
+}
+
+func UpdateRestaurantByName(name string) error {
+	insertNoteSQL := "UPDATE restaurants WHERE LOWER( restaurants.name ) = ?"
 
 	result, err := db.Exec(insertNoteSQL, strings.ToLower(name))
 	rowsAffected, _ := result.RowsAffected()

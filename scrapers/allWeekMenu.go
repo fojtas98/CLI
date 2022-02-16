@@ -8,56 +8,57 @@ import (
 	"strings"
 	"time"
 
-	"github.com/fojtas98/dailyMenus/helpers"
+	"github.com/fojtas98/dailyMenus/restaurant"
+	"github.com/fojtas98/dailyMenus/scrapers/helpers"
 )
 
-func AllWeekMenu(res helpers.Restaurant) {
+func AllWeekMenu(r restaurant.R) {
 	skip := int(time.Now().Weekday())
-	var dish string
-	var result helpers.TodaysMenu
-	result = append(result, "### \033[1m"+res.Name+"\033[0m ###")
-	response, err := http.Get(res.Url)
-	dataInBytes, _ := ioutil.ReadAll(response.Body)
+	meal := ""
+	menu := []string{""}
+	menu = append(menu, "### \033[1m"+r.Name+"\033[0m ###")
+	res, err := http.Get(r.Url)
+	dataInBytes, _ := ioutil.ReadAll(res.Body)
 	pageContent := string(dataInBytes)
 	if err != nil {
 		log.Fatal(err)
 	}
-	if res.ParentTag != "" {
-		parentTagStartsAt := strings.Index(pageContent, res.ParentTag)
+	if r.ParentTag != "" {
+		parentTagStartsAt := strings.Index(pageContent, r.ParentTag)
 		pageContent = pageContent[parentTagStartsAt:]
 	}
 	for skip > 0 {
-		for i := 0; i < res.Meals; i++ {
-			dishInexStart := strings.Index(pageContent, res.OpenTag)
+		for i := 0; i < r.Meals; i++ {
+			dishInexStart := strings.Index(pageContent, r.OpenTag)
 			if dishInexStart == -1 {
-				result = append(result, " No menu found for today")
+				menu = append(menu, " No menu found for today")
 				break
 			}
 
-			dishInexStart += len(res.OpenTag)
+			dishInexStart += len(r.OpenTag)
 			pageContent = pageContent[dishInexStart:]
 
-			dishIndexEnd := strings.Index(pageContent, res.CloseTag)
+			dishIndexEnd := strings.Index(pageContent, r.CloseTag)
 			if dishIndexEnd == -1 {
-				result = append(result, " close tag is not found please create new instace for this restaurant with right close tag")
+				menu = append(menu, " close tag is not found please create new instace for this rtaurant with right close tag")
 				break
 			}
-			dish = pageContent[:dishIndexEnd]
-			dish = helpers.DeleteWeekDay(dish)
-			if len(dish) == 0 {
+			meal = pageContent[:dishIndexEnd]
+
+			if len(meal) <= 3 || helpers.ContainsCzWeekDay(meal) {
 				i--
 			} else {
+				fmt.Println(len(meal))
 				if skip == 1 {
-					dish = strings.TrimSpace(dish)
-					dish = helpers.DeleteTags(dish)
-					result = append(result, " "+dish)
+					meal = strings.TrimSpace(meal)
+					meal = helpers.DeleteTags(meal)
+					menu = append(menu, " "+meal)
 				}
 			}
-
 		}
 		skip -= 1
 	}
-	for _, meal := range result {
+	for _, meal := range menu {
 		fmt.Println(meal)
 	}
 }

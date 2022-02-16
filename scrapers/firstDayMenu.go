@@ -7,43 +7,44 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/fojtas98/dailyMenus/helpers"
+	"github.com/fojtas98/dailyMenus/restaurant"
+	"github.com/fojtas98/dailyMenus/scrapers/helpers"
 )
 
-func FirstDayMenu(res helpers.Restaurant) {
-	var result helpers.TodaysMenu
-	response, err := http.Get(res.Url)
+func FirstDayMenu(r restaurant.R) {
+	menu := []string{""}
+	response, err := http.Get(r.Url)
 	if err != nil {
 		log.Fatal(err)
 	}
 	dataInBytes, _ := ioutil.ReadAll(response.Body)
 	pageContent := string(dataInBytes)
-	if res.ParentTag != "" {
-		parentTagStartsAt := strings.Index(pageContent, res.ParentTag)
+	if r.ParentTag != "" {
+		parentTagStartsAt := strings.Index(pageContent, r.ParentTag)
 		pageContent = pageContent[parentTagStartsAt:]
 	}
-	result = append(result, "### \033[1m"+res.Name+"\033[0m ###")
-	for i := 0; i < res.Meals; i++ {
-		dishInexStart := strings.Index(pageContent, res.OpenTag)
+	menu = append(menu, "### \033[1m"+r.Name+"\033[0m ###")
+	for i := 0; i < r.Meals; i++ {
+		dishInexStart := strings.Index(pageContent, r.OpenTag)
 		if dishInexStart == -1 {
-			result = append(result, " No menu found for today")
+			menu = append(menu, " No menu found for today")
 			break
 		}
 
-		dishInexStart += len(res.OpenTag)
+		dishInexStart += len(r.OpenTag)
 		pageContent = pageContent[dishInexStart:]
 
-		dishIndexEnd := strings.Index(pageContent, res.CloseTag)
+		dishIndexEnd := strings.Index(pageContent, r.CloseTag)
 		if dishIndexEnd == -1 {
-			result = append(result, " close tag is not found please create new instace for this restaurant with right close tag")
+			menu = append(menu, " close tag is not found please create new instace for this restaurant with right close tag")
 			break
 		}
-		dish := pageContent[:dishIndexEnd]
-		dish = strings.TrimSpace(dish)
-		dish = helpers.DeleteTags(dish)
-		result = append(result, " "+dish)
+		meal := pageContent[:dishIndexEnd]
+		meal = strings.TrimSpace(meal)
+		meal = helpers.DeleteTags(meal)
+		menu = append(menu, " "+meal)
 	}
-	for _, meal := range result {
+	for _, meal := range menu {
 		fmt.Println(meal)
 	}
 }

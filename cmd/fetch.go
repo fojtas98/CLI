@@ -21,12 +21,12 @@ import (
 	"sync"
 
 	"github.com/fojtas98/dailyMenus/data"
-	"github.com/fojtas98/dailyMenus/helpers"
+	"github.com/fojtas98/dailyMenus/restaurant"
 	"github.com/fojtas98/dailyMenus/scrapers"
 	"github.com/spf13/cobra"
 )
 
-var r bool
+var byName bool
 
 // fetchCmd represents the fetch command
 var fetchCmd = &cobra.Command{
@@ -37,14 +37,14 @@ var fetchCmd = &cobra.Command{
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		var wg sync.WaitGroup
-		var restaurants helpers.Restaurants
+		rSlice := []restaurant.R{}
 		var err error
 
-		if !r {
-			restaurants, err = data.GetRestaurantsByArea(args[0])
+		if !byName {
+			rSlice, err = data.GetRestaurantsByArea(args[0])
 
 		} else {
-			restaurants, err = data.GetRestaurantsByRestaurant(args[0])
+			rSlice, err = data.GetRestaurantsByRestaurant(args[0])
 
 		}
 
@@ -52,14 +52,14 @@ var fetchCmd = &cobra.Command{
 			fmt.Println(err)
 			os.Exit(0)
 		}
-		for _, res := range restaurants {
+		for _, res := range rSlice {
 			wg.Add(1)
-			go func(res helpers.Restaurant) {
-				if res.ResType == "justToday" {
+			go func(r restaurant.R) {
+				if r.ResType == "justToday" {
 
-					scrapers.FirstDayMenu(res)
+					scrapers.FirstDayMenu(r)
 				} else {
-					scrapers.AllWeekMenu(res)
+					scrapers.AllWeekMenu(r)
 				}
 				wg.Done()
 			}(res)
@@ -72,6 +72,6 @@ var fetchCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(fetchCmd)
-	fetchCmd.Flags().BoolVarP(&r, "restaruant", "r", false, "fetch restaurant for given name")
+	fetchCmd.Flags().BoolVarP(&byName, "restaruant", "r", false, "fetch restaurant for given name")
 	// fetchCmd.Flags().MarkHidden("restaruant")
 }

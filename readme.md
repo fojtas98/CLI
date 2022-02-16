@@ -15,5 +15,5 @@
 - [ ] optimize code -> be more effective
 - [ ] error handling
 - [ ] create update fnc to update restaurant
-
+- [ ] update all ui with promotui
 - [x] fix bug with dir
